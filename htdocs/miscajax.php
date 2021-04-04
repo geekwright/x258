@@ -8,10 +8,11 @@ use Xmf\Request;
 
 require_once __DIR__ . '/mainfile.php';
 
-$xoopsLogger->activated = false;
+$GLOBALS['xoopsLogger']->activated = false;
+error_reporting(E_ALL);
 
 // claims we want to assert (verify)
-$uid = (is_object($xoopsUser)) ? $xoopsUser->uid() : 0;
+$uid = (is_object($GLOBALS['xoopsUser'])) ? $GLOBALS['xoopsUser']->uid() : 0;
 $assertClaims = array('aud' => basename(__FILE__), 'uid' => $uid);
 
 // handle ajax requests
@@ -29,7 +30,11 @@ if (0 === strcasecmp(Request::getHeader('X-Requested-With', ''), 'XMLHttpRequest
     $payload = getPayload();
     //http_response_code(200);
     header('Content-Type: application/json', true, 200);
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
+    $jsonFlags = JSON_NUMERIC_CHECK;   
+    if (PHP_VERSION_ID >= 50400) {
+        $jsonFlags |= JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+    }
+    echo json_encode($payload, $jsonFlags);
     exit;
 }
 

@@ -38,7 +38,7 @@
 
    function getOnlineData() {
       var postVals = {
-         Authorization: "<{jwt xmf_key=online aud=miscajax.php uid=fill}>",
+         Authorization: "<{jwt xmf_key=miscajax aud=miscajax.php uid=fill}>",
          type: "online",
          start: onlineStart,
          limit: onlineLimit
@@ -52,18 +52,14 @@
          success: function (resultData) {
             alert("Make stuff happen!");
             const inputjson = JSON.parse(resultData);
-            const array1 = inputjson.onlineUserInfo;
-
-            array1.forEach(formatOutput);
-
+            formatOutput(inputjson);
             console.log(resultData);
          }
       });
 
-      function formatOutput(item, index) {
-         console.log(item);
-         var template = '<tag>{{uid}} {{uname}} {{dirname}} {{avatar}}</tag>';
-         var rendered = mustache(template, item);
+      function formatOutput(inputjson) {
+         var template = '<tag>{{#onlineUserInfo}}<div>{{uid}} {{uname}} {{dirname}} {{upload_url}}{{avatar}} {{#isadmin}}{{ip}}{{/isadmin}}</div>{{/onlineUserInfo}}</tag>';
+         var rendered = mustache(template, inputjson);
          console.log(rendered);
       }
    }
