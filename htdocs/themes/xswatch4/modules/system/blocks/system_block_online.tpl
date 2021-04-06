@@ -20,6 +20,27 @@
    <button type="button" class="btn btn-primary btn-sm" onclick="getOnlineData();" title="<{$block.lang_more}>">
       <span class="fa fa-search-plus fa-lg fa-fw "></span></button>
 </p>
+
+<!-- Modal -->
+<div class="modal fade" id="onlineModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="onlineModalTitle">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div id="onlinecontent" class="modal-body">
+         </div>
+         <div class="modal-footer">
+            <button id="onlineClose" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+         </div>
+      </div>
+   </div>
+</div>
+
 <script>
    // load mustache to make life easier with simple js templating
    // https://github.com/aishikaty/tiny-mustache
@@ -50,7 +71,7 @@
          data: postVals,
          dataType: "text",
          success: function (resultData) {
-            alert("Make stuff happen!");
+            alert('(Might want to open the console)');
             const inputjson = JSON.parse(resultData);
             formatOutput(inputjson);
             console.log(resultData);
@@ -58,8 +79,12 @@
       });
 
       function formatOutput(inputjson) {
-         var template = '<tag>{{#onlineUserInfo}}<div>{{uid}} {{uname}} {{dirname}} {{upload_url}}{{avatar}} {{#isadmin}}{{ip}}{{/isadmin}}</div>{{/onlineUserInfo}}</tag>';
+         var template = '{{#onlineUserInfo}}<div>{{#uid}}<a href="{{xoops_url}}/user.php?uid={{uid}}"><img src="{{upload_url}}{{avatar}}" /><br>{{uname}}</a>{{/uid}}{{#anon}}{{uname}}{{/anon}} {{dirname}} {{#isadmin}}{{ip}}<br>{{updated}}{{/isadmin}}</div>{{/onlineUserInfo}}';
          var rendered = mustache(template, inputjson);
+         $('#onlinecontent').html(rendered);
+         $('#onlineModalTitle').html(inputjson.lang_whoisonline);
+         $('#onlineClose').html(inputjson.lang_close);
+         $('#onlineModal').modal('show');
          console.log(rendered);
       }
    }
