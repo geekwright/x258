@@ -35,7 +35,7 @@
          </div>
          <div class="modal-footer">
             <button id="onlineClose" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-primary">(for paging)</button>
          </div>
       </div>
    </div>
@@ -52,12 +52,32 @@
       xscript.type = 'text/javascript';
       xscript.src = '<{$xoops_url}>/include/mustache.min.js';
       document.body.appendChild(xscript);
+      var template = '{{#onlineUserInfo}} \
+         <div class="text-center"> \
+            <div class="card col-md-8 mx-auto"> \
+                 {{#uid}} \
+                 <div class="card-body"> \
+                 <img class="img-thumbnail" src="{{upload_url}}{{avatar}}" alt="{{lang_avatar}}" width="128"> \
+                 <p class="card-text"> \
+                    <a href="{{xoops_url}}/user.php?uid={{uid}}">{{uname}}</a> \
+                 {{/uid}} \
+                 {{#anon}} \
+                 <div class="card-body"> \
+                 <p class="card-text"> \
+                 {{uname}} \
+                 {{/anon}}<br>{{dirname}} \
+                 {{#isadmin}}<br>{{ip}}<br>{{updated}}{{/isadmin}} \
+                 </div> \
+            </div> \
+         </div> \
+         {{/onlineUserInfo}}';
+
    }
-
    var onlineStart = 0;
-   var onlineLimit = 20;
 
+   var onlineLimit = 20;
    function getOnlineData() {
+
       var postVals = {
          Authorization: "<{jwt xmf_key=miscajax aud=miscajax.php uid=fill}>",
          type: "online",
@@ -71,7 +91,6 @@
          data: postVals,
          dataType: "text",
          success: function (resultData) {
-            alert('(Might want to open the console)');
             const inputjson = JSON.parse(resultData);
             formatOutput(inputjson);
             console.log(resultData);
@@ -79,7 +98,6 @@
       });
 
       function formatOutput(inputjson) {
-         var template = '{{#onlineUserInfo}}<div>{{#uid}}<a href="{{xoops_url}}/user.php?uid={{uid}}"><img src="{{upload_url}}{{avatar}}" /><br>{{uname}}</a>{{/uid}}{{#anon}}{{uname}}{{/anon}} {{dirname}} {{#isadmin}}{{ip}}<br>{{updated}}{{/isadmin}}</div>{{/onlineUserInfo}}';
          var rendered = mustache(template, inputjson);
          $('#onlinecontent').html(rendered);
          $('#onlineModalTitle').html(inputjson.lang_whoisonline);
