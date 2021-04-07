@@ -65,7 +65,7 @@
                  <div class="card-body"> \
                  <p class="card-text"> \
                  {{uname}} \
-                 {{/anon}}<br>{{dirname}} \
+                 {{/anon}}{{#mid}}<br><a href="{{xoops_url}}modules/{{dirname}}">{{module_name}}</a>{{/mid}} \
                  {{#isadmin}}<br>{{ip}}<br>{{updated}}{{/isadmin}} \
                  </div> \
             </div> \
