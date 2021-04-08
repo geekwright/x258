@@ -35,7 +35,7 @@
          </div>
          <div class="modal-footer">
             <button id="onlineClose" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">(for paging)</button>
+            <button type="button" class="btn btn-primary" onclick="nextOnlinePage();"><i class="fa fa-angle-double-right fa-lg" aria-hidden="true"></i></button>
          </div>
       </div>
    </div>
@@ -73,9 +73,20 @@
          {{/onlineUserInfo}}';
 
    }
-   var onlineStart = 0;
 
+   var onlineStart = 0;
    var onlineLimit = 20;
+   var onlineReturned = 0;
+
+   function nextOnlinePage() {
+      if (onlineReturned<onlineLimit) {
+         onlineStart = 0;
+      } else {
+         onlineStart += onlineLimit;
+      }
+      getOnlineData();
+   }
+
    function getOnlineData() {
 
       var postVals = {
@@ -92,18 +103,18 @@
          dataType: "text",
          success: function (resultData) {
             const inputjson = JSON.parse(resultData);
-            formatOutput(inputjson);
+            formatOnlineOutput(inputjson);
+            onlineReturned = inputjson.onlineUserInfo.length;
             console.log(resultData);
          }
       });
 
-      function formatOutput(inputjson) {
+      function formatOnlineOutput(inputjson) {
          var rendered = mustache(template, inputjson);
          $('#onlinecontent').html(rendered);
          $('#onlineModalTitle').html(inputjson.lang_whoisonline);
          $('#onlineClose').html(inputjson.lang_close);
          $('#onlineModal').modal('show');
-         console.log(rendered);
       }
    }
 </script>
