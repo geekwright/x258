@@ -8,10 +8,11 @@ use Xmf\Request;
 
 require_once __DIR__ . '/mainfile.php';
 
-$xoopsLogger->activated = false;
+$GLOBALS['xoopsLogger']->activated = false;
+error_reporting(E_ALL);
 
 // claims we want to assert (verify)
-$uid = (is_object($xoopsUser)) ? $xoopsUser->uid() : 0;
+$uid = (is_object($GLOBALS['xoopsUser'])) ? $GLOBALS['xoopsUser']->uid() : 0;
 $assertClaims = array('aud' => basename(__FILE__), 'uid' => $uid);
 
 // handle ajax requests
@@ -29,7 +30,11 @@ if (0 === strcasecmp(Request::getHeader('X-Requested-With', ''), 'XMLHttpRequest
     $payload = getPayload();
     //http_response_code(200);
     header('Content-Type: application/json', true, 200);
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
+    $jsonFlags = JSON_NUMERIC_CHECK;
+    if (PHP_VERSION_ID >= 50400) {
+        $jsonFlags |= JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+    }
+    echo json_encode($payload, $jsonFlags);
     exit;
 }
 
@@ -62,10 +67,11 @@ function getOnline()
     }
 
     $variables['isadmin'] = $isadmin;
-    $variables['lang_whoisonline'] = _WHOSONLINE;
-    $variables['lang_close'] = _CLOSE;
-    $variables['lang_avatar'] = _US_AVATAR;
+    $variables['lang_whoisonline'] = htmlentities(_WHOSONLINE);
+    $variables['lang_close'] = htmlentities(_CLOSE);
+    $variables['lang_avatar'] = htmlentities(_US_AVATAR);
     $variables['anonymous'] = $xoopsConfig['anonymous'];
+    $variables['xoops_url'] = XOOPS_URL . '/';
     $variables['upload_url'] = XOOPS_UPLOAD_URL . '/';
 
     /* @var XoopsModuleHandler $module_handler */
@@ -88,12 +94,14 @@ function getOnline()
             $info['uname'] = $xoopsConfig['anonymous'];;
             $info['name'] = '';
             $info['avatar'] = 'avatars/blank.gif';
+            $info['anon'] = 1;
         } else {
             /** @var XoopsUser $onlineUser */
             $onlineUser = new XoopsUser($online['online_uid']);
             $info['uname'] = $online['online_uname'];
             $info['name'] = $onlineUser->name();
             $info['avatar'] = $onlineUser->user_avatar();
+            $info['anon'] = 0;
         }
         if ($isadmin) {
             $info['updated'] = formatTimestamp($online['online_updated'], 'm', $timezone);
